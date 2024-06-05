@@ -90,6 +90,18 @@ io.on('connection',(socket)=>{
         }else if (key == "d"){
             player.angle += 3;
         }
+        
+        if(player.x > 1600){
+            player.x = 1580;
+        }else if (player.x < 0){
+            player.x = 20;
+        }
+
+        if(player.y > 1600){
+            player.y = 1580;
+        }else if (player.y < 0){
+            player.y = 20;
+        }
     })
 
     socket.on('updateTanks',(tank)=>{
