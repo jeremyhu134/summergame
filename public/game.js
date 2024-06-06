@@ -13,7 +13,7 @@ const config = {
         arcade: {
             gravity: { y: 0 },
             enableBody: true,
-            fps: 60
+            fps: 70,
             //debug: true
         }
     },

@@ -32,7 +32,7 @@ class ArenaScene extends Phaser.Scene {
             y: 600,
             id: socket.id
         }
-        gameState.shootCooldown = 0;
+        gameState.shootReady = true;
 
         gameState.playerLoaded = false;
        
@@ -130,6 +130,15 @@ class ArenaScene extends Phaser.Scene {
             var player = tanks[findTank(sentBullet.tankOwner,tanks)];
             sentBullet.sprite = gameState.bullets.create(sentBullet.x,sentBullet.y,`pellet`).setDepth(0).setScale(1);
             sentBullet.sprite.id = sentBullet.id;
+            if(gameState.shootReady == false){
+                this.time.addEvent({
+                    delay: 300,
+                    callback: function () {
+                        gameState.shootReady = true;
+                    },
+                    callbackScope: this
+                });
+            }
             bullets.push(sentBullet);
             for(var i = 0; i < tanks.length; i++){
                 if(tanks[i].id != player.id){
@@ -175,30 +184,29 @@ class ArenaScene extends Phaser.Scene {
         socket.emit('connectToGame',socket.id);
         socket.on('')
     }
-    update(){
+    update(time,delta){
         if(gameState.playerLoaded == true){
-            gameState.shootCooldown--;
             if(gameState.mouse.isDown){
-                if(gameState.shootCooldown <= 0){
-                    gameState.shootCooldown = 20;
+                if(gameState.shootReady == true){
+                    gameState.shootReady = false;
                     socket.emit('shotFired',JSON.stringify(gameState.tank));
                 }
             }
             if(gameState.keys.W.isDown){
-                socket.emit('updateMovement',"w");
+                socket.emit('updateMovement',"w",JSON.stringify(delta));
             }
             else if(gameState.keys.S.isDown){
-                socket.emit('updateMovement',"s");
+                socket.emit('updateMovement',"s",JSON.stringify(delta));
             }
             else {
                 //socket.emit('updateMovement',JSON.stringify("none"));
             }
             
             if(gameState.keys.A.isDown){   
-                socket.emit('updateMovement',"a");
+                socket.emit('updateMovement',"a",JSON.stringify(delta));
             }
             else if(gameState.keys.D.isDown){
-                socket.emit('updateMovement',"d");
+                socket.emit('updateMovement',"d",JSON.stringify(delta));
             }    
         }
     }

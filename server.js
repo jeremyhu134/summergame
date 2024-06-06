@@ -75,20 +75,20 @@ io.on('connection',(socket)=>{
         console.log(currentPlayers);
     });
 
-    socket.on('updateMovement',(key)=>{
+    socket.on('updateMovement',(key,delta)=>{
         var player = currentPlayers[findTankIndex(socket.id)];
-        
+        var time = JSON.parse(delta);
         
         if(key == "w"){
-            player.x += 5*Math.cos(Math.PI*player.angle/180);
-            player.y += 5*Math.sin(Math.PI*player.angle/180);
+            player.x += (delta/16)*5*Math.cos(Math.PI*player.angle/180);
+            player.y += (delta/16)*5*Math.sin(Math.PI*player.angle/180);
         }else if (key == "s"){
-            player.x -= 5*Math.cos(Math.PI*player.angle/180);
-            player.y -= 5*Math.sin(Math.PI*player.angle/180);
+            player.x -= (delta/16)*5*Math.cos(Math.PI*player.angle/180);
+            player.y -= (delta/16)*5*Math.sin(Math.PI*player.angle/180);
         }else if (key == "a"){
-            player.angle -= 3;
+            player.angle -= (delta/16)*3;
         }else if (key == "d"){
-            player.angle += 3;
+            player.angle += (delta/16)*3;
         }
         
         if(player.x > 1600){
