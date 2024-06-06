@@ -1,5 +1,6 @@
 const socket = io();
 //Create ArenaScene Phaser SubClass
+
 class ArenaScene extends Phaser.Scene {
     constructor() {
         //parameter for phaser class to allow phaser to reference subclass
@@ -142,12 +143,14 @@ class ArenaScene extends Phaser.Scene {
             bullets.push(sentBullet);
             for(var i = 0; i < tanks.length; i++){
                 if(tanks[i].id != player.id){
-                    tanks[i].sprite.id = tanks[i].id
-                    this.physics.add.overlap(sentBullet.sprite, tanks[i].sprite,(bullet, tank)=>{
-                        socket.emit('bulletHit',tank.id,JSON.stringify(bullet.id));
-                        console.log("hit");
-                        bullet.destroy();
-                    });
+                    function overlapCallback(tankObject,sentBullet){
+                        return (bullet, tank)=>{
+                            socket.emit('bulletHit',tankObject.id,JSON.stringify(sentBullet));
+                            console.log("hit");
+                            bullet.destroy();
+                        }
+                    }
+                    this.physics.add.overlap(sentBullet.sprite, tanks[i].sprite,overlapCallback(tanks[i],sentBullet));
                 }
             }
             
@@ -181,6 +184,8 @@ class ArenaScene extends Phaser.Scene {
             this.add.line(0,i*100,i,0,1600,0,0x808080).setOrigin(0,0);
         }
 
+        this.scene.launch('ScoreboardScene');
+
         socket.emit('connectToGame',socket.id);
         socket.on('')
     }
@@ -209,5 +214,68 @@ class ArenaScene extends Phaser.Scene {
                 socket.emit('updateMovement',"d",JSON.stringify(delta));
             }    
         }
+    }
+}
+
+
+
+class ScoreboardScene extends Phaser.Scene{
+    constructor(){
+        super({key: "ScoreboardScene"})
+    }
+    preload(){
+
+    }
+    create(){
+        const rect = this.add.graphics();
+
+        // Set the fill style and line style for the rectangle
+        rect.fillStyle(0x000000, 1);
+
+        // Draw the rounded rectangle
+        const cornerRadius = 20; // Adjust the corner radius as needed
+        rect.fillRoundedRect(20, 20, 210, 300, cornerRadius);
+        rect.setAlpha(0.4);
+        const text = this.add.text(30, 30, 'Killstreak ScoreBoard', {
+            fontFamily: 'Helvetica', // Use the font-family name you used in preload
+            fontSize: '20px',
+            fill: '#ffffff'
+        });
+
+        var playerText = this.add.text(30, 70, '', {
+            fontFamily: 'Helvetica', // Use the font-family name you used in preload
+            fontSize: '15px',
+            fill: '#ffffff'
+        });
+        var leaderBoard = [];
+
+        socket.on("updateScoreboard",(tanks)=>{
+            leaderBoard = [];
+            playerText.setText('');
+            var sentTanks = JSON.parse(tanks);
+            //console.log(sentTanks.length);
+            var killList = [];
+            for(var i = 0; i < sentTanks.length;i++){
+                killList.push(sentTanks[i].kills);
+            }
+            while(sentTanks.length > 0){
+                var index = killList.indexOf(Math.max.apply(null,killList));
+                leaderBoard.push(sentTanks[index]);
+                sentTanks.splice(index,index+1);
+                killList.splice(index,index+1);
+            }
+
+            for(var i = 0; i < leaderBoard.length; i++){
+                var isyou = '';
+                if(socket.id == leaderBoard[i].id){
+                    isyou = "(YOU)";
+                }
+                playerText.setText(playerText.text+(i+1)+". "+leaderBoard[i].id.substring(0,10)+` ${isyou}  Kills: `+leaderBoard[i].kills+"\n");
+            }
+        });
+
+    }
+    update(){
+
     }
 }

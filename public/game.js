@@ -18,7 +18,7 @@ const config = {
         }
     },
     //subclass scenes 
-    scene:[MenuScene,ArenaScene],
+    scene:[MenuScene,ArenaScene,ScoreboardScene],
     //phasers scale system to fit into the brower
     scale: {
         zoom: 1,

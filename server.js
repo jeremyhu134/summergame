@@ -43,6 +43,7 @@ io.on('connection',(socket)=>{
         x: Math.random()*1400+100,
         y: Math.random()*1400+100,
         angle: 0,
+        kills: 0,
         id: socket.id
     }
 
@@ -129,8 +130,9 @@ io.on('connection',(socket)=>{
         io.emit('updateShot',JSON.stringify(bullet));
     })
 
-    socket.on('bulletHit',(tankid,bulletid)=>{
-        var index = findBulletIndex(bulletid);
+    socket.on('bulletHit',(tankid,bullet)=>{
+        var sentBullet = JSON.parse(bullet)
+        var index = findBulletIndex(sentBullet.id);
         bullets.splice(index,index+1);
         var index2 = findTankIndex(tankid);
         if(index != -1){
@@ -139,6 +141,9 @@ io.on('connection',(socket)=>{
                 currentPlayers[index2].x = Math.random()*1400+100;
                 currentPlayers[index2].y = Math.random()*1400+100;
                 currentPlayers[index2].health = 100;
+                currentPlayers[index2].kills = 0;
+                var indexOfTankOwner = findTankIndex(sentBullet.tankOwner);
+                currentPlayers[indexOfTankOwner].kills ++;
             }
         }
     });
@@ -161,4 +166,10 @@ function callback(){
     }
 }
 
+function updateLeaderboard(){
+    io.emit('updateScoreboard',JSON.stringify(currentPlayers));
+}
+
 setInterval(callback,100);
+
+setInterval(updateLeaderboard,1000);
