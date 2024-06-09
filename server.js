@@ -68,7 +68,7 @@ io.on('connection',(socket)=>{
         
         var index = findTankIndex(socket.id);
         if(index != -1){
-            currentPlayers.splice(index,index+1);
+            currentPlayers.splice(index,1);
         }else{
             console.log("Failed to delete");
         }
@@ -133,7 +133,7 @@ io.on('connection',(socket)=>{
     socket.on('bulletHit',(tankid,bullet)=>{
         var sentBullet = JSON.parse(bullet)
         var index = findBulletIndex(sentBullet.id);
-        bullets.splice(index,index+1);
+        bullets.splice(index,1);
         var index2 = findTankIndex(tankid);
         if(index != -1){
             currentPlayers[index2].health -= 20;

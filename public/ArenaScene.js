@@ -96,7 +96,7 @@ class ArenaScene extends Phaser.Scene {
             var index = findTank(id,tanks);
             player.destroyHB();
             player.sprite.destroy();
-            tanks.splice(index,index+1);
+            tanks.splice(index,1);
         });
 
         socket.on('updateTanks',(theTanks)=>{
@@ -161,7 +161,7 @@ class ArenaScene extends Phaser.Scene {
             for(var i = 0 ; i < bullets[i]; i++){
                 if(findBullet(bullets[i],sentBullets) == -1){
                     bullets[i].sprite.destroy();
-                    bullets.splice(i,i+1);
+                    bullets.splice(i,1);
                 }
             }
             for(var i = 0; i < sentBullets.length; i ++){
@@ -261,8 +261,8 @@ class ScoreboardScene extends Phaser.Scene{
             while(sentTanks.length > 0){
                 var index = killList.indexOf(Math.max.apply(null,killList));
                 leaderBoard.push(sentTanks[index]);
-                sentTanks.splice(index,index+1);
-                killList.splice(index,index+1);
+                sentTanks.splice(index,1);
+                killList.splice(index,1);
             }
 
             for(var i = 0; i < leaderBoard.length; i++){
@@ -270,7 +270,7 @@ class ScoreboardScene extends Phaser.Scene{
                 if(socket.id == leaderBoard[i].id){
                     isyou = "(YOU)";
                 }
-                playerText.setText(playerText.text+(i+1)+". "+leaderBoard[i].id.substring(0,10)+` ${isyou}  Kills: `+leaderBoard[i].kills+"\n");
+                playerText.setText(playerText.text+(i+1)+". "+leaderBoard[i].id.substring(0,9)+` ${isyou}  Kills: `+leaderBoard[i].kills+"\n");
             }
         });
 
